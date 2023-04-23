@@ -3,13 +3,11 @@ import express, { Application, Request, Response } from 'express';
 
 class Server {
   private app: Application;
-  private prisma: PrismaClient;
 
-  constructor() {
+  constructor(private prisma: PrismaClient) {
     this.app = express();
     this.config();
     this.routes();
-    this.prisma = new PrismaClient();
   }
 
   private async testDbConnection(): Promise<void> {
@@ -38,10 +36,9 @@ class Server {
     const port = process.env.PORT || 3000;
     this.app.listen(port, () => {
       console.log(`Server listening on port ${port}`);
-      this.testDbConnection();
+      this.testDbConnection()
     });
   }
 }
 
-const lawomServer = new Server();
-lawomServer.start()
+export default Server;

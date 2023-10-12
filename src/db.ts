@@ -1,14 +1,22 @@
-import { PrismaClient } from '@prisma/client';
+import { MongoClient } from 'mongodb';
 
-export const prisma = new PrismaClient();
+const uri = 'mongodb://localhost:27017/lawom?retryWrites=false&w=majority&directConnection=true';
+const client = new MongoClient(uri);
 
-export async function testDbConnection() {
+export async function connectToDatabase() {
   try {
-    await prisma.$connect();
-    console.log('Database connection successful!');
-  } catch (e) {
-    console.error('Database connection failed!', e);
-  } finally {
-    await prisma.$disconnect();
+    await client.connect();
+    console.log('Connected to MongoDB');
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error);
   }
+}
+
+export function getDatabase() {
+  return client.db();
+}
+
+export function getUsersCollection(collectionName: string) {
+  const db = getDatabase();
+  return db.collection(collectionName);
 }

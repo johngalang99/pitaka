@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import OAuth2Dao from '../daos/auth-dao';
+import OAuth2Dao from './auth-dao';
 
 const oauth2Dao = new OAuth2Dao();
 

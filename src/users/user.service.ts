@@ -1,6 +1,3 @@
-import { User } from '@prisma/client';
-
-import UserDao from '../daos/user-dao';
 
 class UserService {
   static async list(): Promise<User[]> {

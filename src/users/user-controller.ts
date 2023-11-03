@@ -1,7 +1,6 @@
-import { User } from '@prisma/client';
 import { Request, Response } from 'express';
 
-import UserService from '../services/user.service';
+import UserService from './user.service';
 
 class UserController {
   static async list(req: Request, res: Response) {

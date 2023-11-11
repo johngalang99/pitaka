@@ -1,37 +1,18 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response } from 'express';
 import { getUsersCollection } from './db';
 import { hash } from 'bcrypt';
-import { z } from 'zod';
+import { validateSchema } from './validators';
+import { RegisterUserRequest } from './auth/auth';
+import { getUserByEmail } from './auth/auth.dao';
 
 const app = express();
 
 app.use(express.json());
 
-
-const User = z.object({
-  name: z.string(),
-  email: z.string().email('Invalid email'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-})
-
-const isUserAlreadyRegistered = async (email: string) => {
-  const user = await getUsersCollection('users').findOne({ email })
-  return user
-}
-
-const validateSchema = (schema: z.ZodSchema<any>) => async (req: Request, res: Response, next: NextFunction) => {
+app.post('/auth/register', validateSchema(RegisterUserRequest), async (req: Request, res: Response) => {
   try {
-    schema.parse(req.body)
-    next()
-  } catch (error) {
-    res.status(400).send({ message: error.message })
-  }
-}
-
-app.post('/auth/register', validateSchema(User), async (req: Request, res: Response) => {
-  try {
-    const { name, email, password } = User.parse(req.body);
-    const existingUser = await isUserAlreadyRegistered(email)
+    const { name, email, password } = req.body;
+    const existingUser = await getUserByEmail(email)
     if (existingUser) {
       return res.status(400).send({ message: 'User already exists' })
     }
@@ -44,6 +25,11 @@ app.post('/auth/register', validateSchema(User), async (req: Request, res: Respo
   } catch {
     res.status(500).send({ message: 'Error creating user' })
   }
+})
+
+app.post('/auth/login', async (req: Request, res: Response) => {
+  console.log('login')
+  res.send({ message: 'login' })
 })
 
 export default app;

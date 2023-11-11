@@ -1,8 +1,17 @@
 import { Router } from 'express';
-
-import OAuth2Controller from './auth-controller';
+import { getUsersCollection } from '../db';
 
 export const authRoutes = Router();
 
-authRoutes.get('/google', OAuth2Controller.getAuthUrl);
-authRoutes.get('/google/callback', OAuth2Controller.handleCallback);
+authRoutes.post('/register', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+      res.status(400).send({ message: 'Missing fields' })
+    }
+    await getUsersCollection('users').insertOne({ name, email, password })
+    res.send({ message: 'User created successfully' })
+  } catch {
+    res.status(500).send({ message: 'Error creating user' })
+  }
+})

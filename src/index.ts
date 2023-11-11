@@ -1,9 +1,8 @@
 import app from './app';
-import { connectToDatabase, getUsersCollection } from './db';
+import { connectToDatabase } from './db';
 
 async function startServer() {
   await connectToDatabase()
-
   const port = process.env.PORT || 8000;
 
   app.listen(port, async () => {

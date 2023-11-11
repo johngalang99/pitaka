@@ -16,7 +16,8 @@
     "bcrypt": "^5.1.1",
     "express": "4.18.2",
     "mongodb": "6.1.0",
-    "tsc-watch": "6.0.4"
+    "tsc-watch": "6.0.4",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

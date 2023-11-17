@@ -1,5 +1,5 @@
 import { Collection, MongoClient, ObjectId, WithId } from 'mongodb';
-import { User } from './types'
+import { Account, User } from './types'
 
 const uri = 'mongodb://localhost:27017/lawom?directConnection=true';
 const client = new MongoClient(uri);
@@ -17,13 +17,13 @@ export const getDatabase = () => {
   return client.db()
 }
 
-export const getUsersCollection = <T>(collectionName: string): Collection<WithId<T>> => {
+export const getCollection = <T>(collectionName: string): Collection<WithId<T>> => {
   const db = getDatabase();
   return db.collection<WithId<T>>(collectionName);
 }
 
 export const getUserByEmail = async (email: string): Promise<User | null> => {
-  return await getUsersCollection<User>('users').findOne({ email })
+  return await getCollection<User>('users').findOne({ email })
 }
 
 export const addUser = async (
@@ -37,6 +37,22 @@ export const addUser = async (
     email,
     password,
   }
-  await getUsersCollection<User>('users').insertOne(user)
+  await getCollection<User>('users').insertOne(user)
+}
+
+export const createAccount = async (
+  name: string,
+  ownerId: ObjectId,
+  initialBalance: number,
+  balance: number,
+) => {
+  const account: Account = {
+    _id: new ObjectId(),
+    name,
+    ownerId,
+    initialBalance,
+    balance,
+  }
+  await getCollection<Account>('accounts').insertOne(account)
 }
 

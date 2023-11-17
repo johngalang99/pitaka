@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
-import { addUser, getUserByEmail } from './db';
+import { addUser, createAccount, getUserByEmail } from './db';
 import * as bcrypt from 'bcrypt';
-import { RegisterUserRequest, validateSchema } from './validators';
+import { RegisterUserRequest, validateSchema, validateToken } from './validators';
 import * as jwt from 'jsonwebtoken';
 
 const app = express();
@@ -38,12 +38,28 @@ app.post('/auth/login', async (req: Request, res: Response) => {
     return res.status(400).send({ message: 'Incorrect password' })
   }
   const payload = {
-    id: user._id,
+    _id: user._id,
     name: user.name,
     email: user.email,
   }
   const token = jwt.sign(payload, 'secret', { expiresIn: '1h' })
   res.send({ message: 'User logged in successfully', token })
+})
+
+app.get('/user/:id', validateToken, async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = await getUserByEmail(id)
+  if (!user) {
+    return res.status(400).send({ message: 'User does not exist' })
+  }
+  res.send({ user })
+})
+
+app.post('/account', validateToken, async (req: Request, res: Response) => {
+  const { _id } = res.locals.user;
+  const { name, initialBalance, balance } = req.body;
+  await createAccount(name, _id, initialBalance, balance)
+  res.send({ message: 'Token is valid' })
 })
 
 export default app;

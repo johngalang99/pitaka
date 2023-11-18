@@ -1,20 +1,21 @@
 import { NextFunction, Request, Response } from 'express';
 import { z } from 'zod';
 import * as jwt from 'jsonwebtoken';
-import { ObjectId } from 'mongodb';
 
-export const RegisterUserRequest = z.object({
+export const RegisterUserRequestSchema = z.object({
   name: z.string(),
   email: z.string().email('Invalid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 })
 
-export const CreateBankAccountRequest = z.object({
+export type RegisterUserRequest = z.infer<typeof RegisterUserRequestSchema>
+
+export const CreateBankAccountRequestSchema = z.object({
   name: z.string(),
-  ownerId: z.instanceof(ObjectId),
   initialBalance: z.number().min(0, 'Balance must be positive'),
-  balance: z.number().min(0, 'Balance must be positive'),
 })
+
+export type CreateBankAccountRequest = z.infer<typeof CreateBankAccountRequestSchema>
 
 export const validateSchema = <T>(schema: z.ZodSchema<T>) => async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -44,6 +45,30 @@ export const validateToken = async (req: Request, res: Response, next: NextFunct
       return res.status(401).send({ message: 'No token provided' })
     }
     const payload = jwt.verify(token, 'secret') as any;
+    res.locals.user = payload;
+    next()
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).send({ message: 'Invalid token' })
+    }
+    res.status(500).send({ message: 'Error validating token' })
+  }
+}
+
+export const validateTokenOwner = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).send({ message: 'No authorization header' })
+    }
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).send({ message: 'No token provided' })
+    }
+    const payload = jwt.verify(token, 'secret') as any;
+    if (payload._id !== req.params.id) {
+      return res.status(403).send({ message: 'You are not authorized to access this resource' })
+    }
     res.locals.user = payload;
     next()
   } catch (error) {

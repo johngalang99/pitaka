@@ -1,16 +1,17 @@
 import express, { Request, Response } from 'express';
-import { addUser, createAccount, getUserByEmail } from './db';
+import { addUser, createAccount, deleteAccountById, getAccountsByOwnerId, getUserByEmail, getUserById } from './db';
 import * as bcrypt from 'bcrypt';
-import { RegisterUserRequest, validateSchema, validateToken } from './validators';
+import { CreateBankAccountRequest, CreateBankAccountRequestSchema, RegisterUserRequest, RegisterUserRequestSchema, validateSchema, validateToken } from './validators';
 import * as jwt from 'jsonwebtoken';
+import { ObjectId } from 'mongodb';
 
 const app = express();
 
 app.use(express.json());
 
-app.post('/auth/register', validateSchema(RegisterUserRequest), async (req: Request, res: Response) => {
+app.post('/auth/register', validateSchema(RegisterUserRequestSchema), async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password } = req.body as RegisterUserRequest;
     const existingUser = await getUserByEmail(email)
     if (existingUser) {
       return res.status(400).send({ message: 'User already exists' })
@@ -47,19 +48,31 @@ app.post('/auth/login', async (req: Request, res: Response) => {
 })
 
 app.get('/user/:id', validateToken, async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const user = await getUserByEmail(id)
-  if (!user) {
-    return res.status(400).send({ message: 'User does not exist' })
+  try {
+    const { id } = req.params;
+    const user = await getUserById(id)
+    res.send(user)
+  } catch (error) {
+    res.status(404).send({ message: error.message })
   }
-  res.send({ user })
 })
 
-app.post('/account', validateToken, async (req: Request, res: Response) => {
-  const { _id } = res.locals.user;
-  const { name, initialBalance, balance } = req.body;
-  await createAccount(name, _id, initialBalance, balance)
-  res.send({ message: 'Token is valid' })
+app.post('/account', validateToken, validateSchema(CreateBankAccountRequestSchema), async (req: Request, res: Response) => {
+  const _id = new ObjectId(res.locals.user._id);
+  const { name, initialBalance } = req.body as CreateBankAccountRequest;
+  await createAccount(_id, name, initialBalance)
+  res.send({ message: 'Account created!' })
+})
+
+app.get('/accounts/:ownerId', validateToken, async (req: Request, res: Response) => {
+  const _id = new ObjectId(res.locals.user._id);
+  const accounts = await getAccountsByOwnerId(_id)
+  res.send(accounts)
+})
+
+app.delete('/account/:id', validateToken, async (req: Request, res: Response) => {
+  const _id = new ObjectId(req.params.id)
+  await deleteAccountById(_id)
 })
 
 export default app;

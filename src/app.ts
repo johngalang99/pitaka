@@ -1,51 +1,21 @@
-import express, { Request, Response } from 'express';
-import { addUser, createAccount, deleteAccountById, getAccountsByOwnerId, getUserByEmail, getUserById } from './db';
-import * as bcrypt from 'bcrypt';
-import { CreateBankAccountRequest, CreateBankAccountRequestSchema, RegisterUserRequest, RegisterUserRequestSchema, validateSchema, validateToken } from './validators';
-import * as jwt from 'jsonwebtoken';
+import express, { NextFunction, Request, Response } from 'express';
+import { createAccount, deleteAccountById, getAccountsByOwnerId, getUserById } from './db';
+import { CreateBankAccountRequest, CreateBankAccountRequestSchema, validateSchema, validateToken } from './validators';
 import { ObjectId } from 'mongodb';
+import authRouter from './auth/auth.routes';
 
 const app = express();
 
+const loggingMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} to ${req.url}`);
+  next();
+};
+
+app.use(loggingMiddleware);
 app.use(express.json());
 
-app.post('/auth/register', validateSchema(RegisterUserRequestSchema), async (req: Request, res: Response) => {
-  try {
-    const { name, email, password } = req.body as RegisterUserRequest;
-    const existingUser = await getUserByEmail(email)
-    if (existingUser) {
-      return res.status(400).send({ message: 'User already exists' })
-    }
-    if (!name || !email || !password) {
-      return res.status(400).send({ message: 'Missing fields' })
-    }
-    const hashedPassword = await bcrypt.hash(password, 10)
-    await addUser(name, email, hashedPassword)
-    res.send({ message: 'User created successfully' })
-  } catch {
-    res.status(500).send({ message: 'Error creating user' })
-  }
-})
+app.use('/auth', authRouter);
 
-app.post('/auth/login', async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  const user = await getUserByEmail(email)
-  if (!user) {
-    return res.status(400).send({ message: 'User does not exist' })
-  }
-  const passwordMatch = await bcrypt.compare(password, user.password);
-
-  if (!passwordMatch) {
-    return res.status(400).send({ message: 'Incorrect password' })
-  }
-  const payload = {
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-  }
-  const token = jwt.sign(payload, 'secret', { expiresIn: '1h' })
-  res.send({ message: 'User logged in successfully', token })
-})
 
 app.get('/user/:id', validateToken, async (req: Request, res: Response) => {
   try {
@@ -64,7 +34,7 @@ app.post('/account', validateToken, validateSchema(CreateBankAccountRequestSchem
   res.send({ message: 'Account created!' })
 })
 
-app.get('/accounts/:ownerId', validateToken, async (req: Request, res: Response) => {
+app.get('/account/:ownerId', validateToken, async (req: Request, res: Response) => {
   const _id = new ObjectId(res.locals.user._id);
   const accounts = await getAccountsByOwnerId(_id)
   res.send(accounts)

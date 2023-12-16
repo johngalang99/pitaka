@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
-import { Database } from './db';
 import { RegisterUserRequest } from './validators';
 import { Service } from './service';
 import { ObjectId } from 'mongodb';
-
 
 export class Controller {
   constructor(private service: Service) { }

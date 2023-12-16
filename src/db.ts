@@ -1,5 +1,4 @@
-import { Collection, MongoClient, ObjectId, WithId } from 'mongodb';
-import { Account, User } from './types'
+import { Collection, MongoClient, WithId } from 'mongodb';
 export class Database {
   private client: MongoClient;
   private uri: string = 'mongodb://localhost:27017/pitaka?directConnection=true';
@@ -26,7 +25,3 @@ export class Database {
     return db.collection<WithId<T>>(collectionName);
   }
 }
-
-
-
-

@@ -13,15 +13,11 @@ export class Server {
     private database: Database,
     private port: number | string = process.env.PORT || 8000
   ) {
-    const dao = new Dao(database);
+    const dao = new Dao(this.database);
     const service = new Service(dao);
     this.controller = new Controller(service);
     this.app.use(express.json());
     this.initializeRoutes();
-  }
-
-  initializeRoutes() {
-    setupRoutes(this.app, this.controller);
   }
 
   async start() {
@@ -33,5 +29,9 @@ export class Server {
     } catch (error) {
       console.error('Error connecting to the database:', error);
     }
+  }
+
+  initializeRoutes() {
+    setupRoutes(this.app, this.controller);
   }
 }

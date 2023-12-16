@@ -6,7 +6,7 @@ jest.mock('mongodb');
 describe('Database', () => {
   let db: Database;
 
-  beforeEach(() => {
+  beforeAll(() => {
     db = new Database();
   });
 

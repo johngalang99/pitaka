@@ -1,75 +1,32 @@
 import { Collection, MongoClient, ObjectId, WithId } from 'mongodb';
 import { Account, User } from './types'
+export class Database {
+  private client: MongoClient;
+  private uri: string = 'mongodb://localhost:27017/pitaka?directConnection=true';
 
-const uri = 'mongodb://localhost:27017/pitaka?directConnection=true';
-const client = new MongoClient(uri);
+  constructor() {
+    this.client = new MongoClient(this.uri);
+  }
 
-export const connectToDatabase = async () => {
-  try {
-    await client.connect();
-    console.log('Connected to MongoDB');
-  } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
+  async connect() {
+    try {
+      await this.client.connect();
+      console.log('Connected to MongoDB');
+    } catch (error) {
+      console.error('Error connecting to MongoDB:', error);
+    }
+  }
+
+  getDatabase() {
+    return this.client.db();
+  }
+
+  getCollection<T>(collectionName: string): Collection<WithId<T>> {
+    const db = this.getDatabase();
+    return db.collection<WithId<T>>(collectionName);
   }
 }
 
-export const getDatabase = () => {
-  return client.db()
-}
 
-export const getCollection = <T>(collectionName: string): Collection<WithId<T>> => {
-  const db = getDatabase();
-  return db.collection<WithId<T>>(collectionName);
-}
 
-export const getUserByEmail = async (email: string): Promise<User | null> => {
-  return await getCollection<User>('users').findOne({ email })
-}
 
-export const getUserById = async (_id: string | ObjectId): Promise<User> => {
-  if (typeof _id === 'string') {
-    _id = new ObjectId(_id);
-  }
-  const user = await getCollection<User>('users').findOne({ _id });
-  if (!user) {
-    throw new Error('User not found');
-  }
-  return user;
-}
-
-export const addUser = async (
-  name: string,
-  email: string,
-  password: string,
-): Promise<void> => {
-  const user: User = {
-    _id: new ObjectId(),
-    name,
-    email,
-    password,
-  }
-  await getCollection<User>('users').insertOne(user)
-}
-
-export const createAccount = async (
-  ownerId: ObjectId,
-  name: string,
-  initialBalance: number,
-): Promise<void> => {
-  const account: Account = {
-    _id: new ObjectId(),
-    name,
-    ownerId,
-    initialBalance,
-    balance: initialBalance,
-  }
-  await getCollection<Account>('accounts').insertOne(account)
-}
-
-export const getAccountsByOwnerId = async (ownerId: ObjectId): Promise<Account[]> => {
-  return await getCollection<Account>('accounts').find({ ownerId }).toArray()
-}
-
-export const deleteAccountById = async (id: ObjectId): Promise<void> => {
-  await getCollection<Account>('accounts').deleteOne({ _id: id })
-}

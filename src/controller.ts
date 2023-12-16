@@ -8,7 +8,7 @@ import { ObjectId } from 'mongodb';
 export class Controller {
   constructor(private service: Service) { }
 
-  async registerUser(req: Request, res: Response) {
+  registerUser = async (req: Request, res: Response) => {
     try {
       const { name, email, password } = req.body as RegisterUserRequest;
       await this.service.registerUser(name, email, password)
@@ -18,7 +18,7 @@ export class Controller {
     }
   }
 
-  async loginUser(req: Request, res: Response) {
+  loginUser = async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
       const token = await this.service.loginUser(email, password);
@@ -28,7 +28,7 @@ export class Controller {
     }
   }
 
-  async getUserById(req: Request, res: Response) {
+  getUserById = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const user = await this.service.getUserById(id)
@@ -38,7 +38,7 @@ export class Controller {
     }
   }
 
-  async createAccount(req: Request, res: Response) {
+  createAccount = async (req: Request, res: Response) => {
     try {
       const { name, initialBalance } = req.body;
       const _id = new ObjectId(res.locals.user._id);
@@ -49,7 +49,7 @@ export class Controller {
     }
   }
 
-  async getAccountsByOwnerId(req: Request, res: Response) {
+  getAccountsByOwnerId = async (req: Request, res: Response) => {
     try {
       const _id = new ObjectId(res.locals.user._id);
       const accounts = await this.service.getAccountsByOwnerId(_id)
@@ -59,7 +59,7 @@ export class Controller {
     }
   }
 
-  async deleteAccountById(req: Request, res: Response) {
+  deleteAccountById = async (req: Request, res: Response) => {
     try {
       const _id = new ObjectId(req.params.id)
       await this.service.deleteAccountById(_id)

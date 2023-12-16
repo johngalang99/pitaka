@@ -25,10 +25,14 @@ export class Server {
   }
 
   async start() {
-    await this.database.connect();
-    this.app.listen(this.port, () => {
-      console.log(`Server running on port ${this.port}`);
-    });
+    try {
+      await this.database.connect();
+      this.app.listen(this.port, () => {
+        console.log(`Server is running on port ${this.port}`);
+      });
+    } catch (error) {
+      console.error('Error connecting to the database:', error);
+    }
   }
 }
 

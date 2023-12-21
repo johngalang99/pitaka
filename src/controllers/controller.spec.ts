@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import { Controller } from './controller';
-import { Service } from './service';
+import { Service } from '../services/service';
 
 describe('Controller', () => {
   let controller: Controller;

@@ -16,6 +16,8 @@ describe('Database', () => {
     await db.connect();
 
     expect(connectSpy).toHaveBeenCalled();
+
+    console.log('forda pr trial')
   });
 
   it('should get a collection', () => {

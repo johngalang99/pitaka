@@ -14,3 +14,17 @@ export interface Account {
   initialBalance: number;
   balance: number;
 }
+
+export interface Record {
+  _id: ObjectId;
+  accountId: ObjectId;
+  amount: number;
+  type: RecordType;
+  description: string;
+  date: Date;
+}
+
+export enum RecordType {
+  Expense = 'expense',
+  Income = 'income',
+}

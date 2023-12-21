@@ -1,9 +1,9 @@
 import { Database } from './db';
 import express from 'express';
-import { Controller } from './controller';
-import { Service } from './service';
+import { Controller } from './controllers/controller';
+import { Service } from './services/service';
 import { setupRoutes } from './routes';
-import { Dao } from './dao';
+import { Dao } from './daos/dao';
 
 export class Server {
   private app = express()
@@ -13,15 +13,11 @@ export class Server {
     private database: Database,
     private port: number | string = process.env.PORT || 8000
   ) {
-    const dao = new Dao(database);
+    const dao = new Dao(this.database);
     const service = new Service(dao);
     this.controller = new Controller(service);
     this.app.use(express.json());
     this.initializeRoutes();
-  }
-
-  initializeRoutes() {
-    setupRoutes(this.app, this.controller);
   }
 
   async start() {
@@ -33,5 +29,9 @@ export class Server {
     } catch (error) {
       console.error('Error connecting to the database:', error);
     }
+  }
+
+  initializeRoutes() {
+    setupRoutes(this.app, this.controller);
   }
 }

@@ -1,6 +1,6 @@
-import { Database } from './db';
+import { Database } from '../db';
 import { ObjectId } from 'mongodb';
-import { Account, User } from './types';
+import { Account, User } from '../types';
 
 export class Dao {
   constructor(private db: Database) { }
@@ -20,7 +20,7 @@ export class Dao {
     return user;
   }
 
-  async addUser(
+  async createUser(
     name: string,
     email: string,
     password: string,
@@ -53,7 +53,17 @@ export class Dao {
     return await this.db.getCollection<Account>('accounts').find({ ownerId }).toArray()
   }
 
+  async getAccountById(id: ObjectId): Promise<Account> {
+    const account = await this.db.getCollection<Account>('accounts').findOne({ _id: id })
+    if (!account) {
+      throw new Error('Account not found')
+    }
+    return account
+  }
+
   async deleteAccountById(id: ObjectId): Promise<void> {
     await this.db.getCollection<Account>('accounts').deleteOne({ _id: id })
   }
+
+
 }

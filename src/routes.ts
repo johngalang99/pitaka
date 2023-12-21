@@ -1,5 +1,5 @@
 import { RegisterUserRequestSchema, validateSchema, validateToken } from './validators';
-import { Controller } from './controller';
+import { Controller } from './controllers/controller';
 import { Express } from 'express';
 
 export function setupRoutes(app: Express, controller: Controller) {

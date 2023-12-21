@@ -1,6 +1,6 @@
-import { Database } from './db';
+import { Database } from '../db';
 import { ObjectId } from 'mongodb';
-import { Account, User } from './types';
+import { Account, User } from '../types';
 
 export class Dao {
   constructor(private db: Database) { }

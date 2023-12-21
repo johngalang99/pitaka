@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { Dao } from './dao';
+import { Dao } from '../daos/dao';
 import { ObjectId } from 'mongodb';
 
 export class Service {

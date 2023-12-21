@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { RegisterUserRequest } from './validators';
-import { Service } from './service';
+import { RegisterUserRequest } from '../validators';
+import { Service } from '../services/service';
 import { ObjectId } from 'mongodb';
 
 export class Controller {

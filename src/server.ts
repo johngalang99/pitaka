@@ -1,9 +1,9 @@
 import { Database } from './db';
 import express from 'express';
-import { Controller } from './controller';
-import { Service } from './service';
+import { Controller } from './controllers/controller';
+import { Service } from './services/service';
 import { setupRoutes } from './routes';
-import { Dao } from './dao';
+import { Dao } from './daos/dao';
 
 export class Server {
   private app = express()

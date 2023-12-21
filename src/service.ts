@@ -15,7 +15,7 @@ export class Service {
       throw { status: 400, message: 'Missing fields' }
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    await this.dao.addUser(name, email, hashedPassword);
+    await this.dao.createUser(name, email, hashedPassword);
   };
 
   async loginUser(email: string, password: string): Promise<string> {

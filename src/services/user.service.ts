@@ -1,14 +1,9 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { UserDao } from '../daos/users-dao';
-import { ObjectId } from 'mongodb';
-import { AccountDao } from '../daos/accounts-dao';
+import { UserDao } from '../daos/user.dao';
 
-export class Service {
-  constructor(
-    private accountDao: AccountDao,
-    private userDao: UserDao
-  ) { }
+export class UserService {
+  constructor(private userDao: UserDao) { }
 
   public async registerUser(name: string, email: string, password: string) {
     const existingUser = await this.userDao.getUserByEmail(email);
@@ -41,18 +36,6 @@ export class Service {
 
   async getUserById(id: string) {
     return await this.userDao.getUserById(id)
-  }
-
-  async createAccount(ownerId: ObjectId, name: string, initialBalance: number) {
-    return await this.accountDao.createAccount(ownerId, name, initialBalance)
-  }
-
-  async getAccountsByOwnerId(ownerId: ObjectId) {
-    return await this.accountDao.getAccountsByOwnerId(ownerId)
-  }
-
-  async deleteAccountById(id: ObjectId) {
-    return await this.accountDao.deleteAccountById(id)
   }
 }
 

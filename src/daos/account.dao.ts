@@ -32,6 +32,10 @@ export class AccountDao {
     return account
   }
 
+  async updateAccountBalanceById(id: ObjectId, balance: number): Promise<void> {
+    await this.db.getCollection<Account>('accounts').updateOne({ _id: id }, { $set: { balance } })
+  }
+
   async deleteAccountById(id: ObjectId): Promise<void> {
     await this.db.getCollection<Account>('accounts').deleteOne({ _id: id })
   }

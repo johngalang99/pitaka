@@ -3,7 +3,7 @@ import { Database } from '../db';
 import { Record, RecordType } from '../types';
 
 export class RecordDao {
-  constructor(private db: Database) { }
+  constructor(public db: Database) { }
 
   async createRecord(
     accountId: ObjectId,

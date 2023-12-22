@@ -16,6 +16,10 @@ export class Database {
     }
   }
 
+  getClient(): MongoClient {
+    return this.client;
+  }
+
   getDatabase() {
     return this.client.db();
   }

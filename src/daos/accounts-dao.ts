@@ -1,38 +1,9 @@
-import { Database } from '../db';
 import { ObjectId } from 'mongodb';
-import { Account, User } from '../types';
+import { Database } from '../db';
+import { Account } from '../types';
 
-export class Dao {
+export class AccountDao {
   constructor(private db: Database) { }
-
-  async getUserByEmail(email: string): Promise<User | null> {
-    return await this.db.getCollection<User>('users').findOne({ email });
-  }
-
-  async getUserById(_id: string | ObjectId): Promise<User> {
-    if (typeof _id === 'string') {
-      _id = new ObjectId(_id);
-    }
-    const user = await this.db.getCollection<User>('users').findOne({ _id });
-    if (!user) {
-      throw new Error('User not found');
-    }
-    return user;
-  }
-
-  async createUser(
-    name: string,
-    email: string,
-    password: string,
-  ): Promise<void> {
-    const user: User = {
-      _id: new ObjectId(),
-      name,
-      email,
-      password,
-    }
-    await this.db.getCollection<User>('users').insertOne(user)
-  }
 
   async createAccount(
     ownerId: ObjectId,
@@ -64,6 +35,4 @@ export class Dao {
   async deleteAccountById(id: ObjectId): Promise<void> {
     await this.db.getCollection<Account>('accounts').deleteOne({ _id: id })
   }
-
-
 }

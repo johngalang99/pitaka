@@ -1,13 +1,17 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { Dao } from '../daos/dao';
+import { UserDao } from '../daos/users-dao';
 import { ObjectId } from 'mongodb';
+import { AccountDao } from '../daos/accounts-dao';
 
 export class Service {
-  constructor(private dao: Dao) { }
+  constructor(
+    private accountDao: AccountDao,
+    private userDao: UserDao
+  ) { }
 
   public async registerUser(name: string, email: string, password: string) {
-    const existingUser = await this.dao.getUserByEmail(email);
+    const existingUser = await this.userDao.getUserByEmail(email);
     if (existingUser) {
       throw { status: 409, message: 'User already exists' };
     }
@@ -15,11 +19,11 @@ export class Service {
       throw { status: 400, message: 'Missing fields' }
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    await this.dao.createUser(name, email, hashedPassword);
+    await this.userDao.createUser(name, email, hashedPassword);
   };
 
   async loginUser(email: string, password: string): Promise<string> {
-    const user = await this.dao.getUserByEmail(email)
+    const user = await this.userDao.getUserByEmail(email)
     if (!user) {
       throw { status: 404, message: 'User does not exist' };
     }
@@ -36,19 +40,19 @@ export class Service {
   }
 
   async getUserById(id: string) {
-    return await this.dao.getUserById(id)
+    return await this.userDao.getUserById(id)
   }
 
   async createAccount(ownerId: ObjectId, name: string, initialBalance: number) {
-    return await this.dao.createAccount(ownerId, name, initialBalance)
+    return await this.accountDao.createAccount(ownerId, name, initialBalance)
   }
 
   async getAccountsByOwnerId(ownerId: ObjectId) {
-    return await this.dao.getAccountsByOwnerId(ownerId)
+    return await this.accountDao.getAccountsByOwnerId(ownerId)
   }
 
   async deleteAccountById(id: ObjectId) {
-    return await this.dao.deleteAccountById(id)
+    return await this.accountDao.deleteAccountById(id)
   }
 }
 

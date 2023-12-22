@@ -3,7 +3,8 @@ import express from 'express';
 import { Controller } from './controllers/controller';
 import { Service } from './services/service';
 import { setupRoutes } from './routes';
-import { Dao } from './daos/dao';
+import { UserDao } from './daos/users-dao';
+import { AccountDao } from './daos/accounts-dao';
 
 export class Server {
   private app = express()
@@ -13,8 +14,9 @@ export class Server {
     private database: Database,
     private port: number | string = process.env.PORT || 8000
   ) {
-    const dao = new Dao(this.database);
-    const service = new Service(dao);
+    const accountDao = new AccountDao(this.database);
+    const userDao = new UserDao(this.database);
+    const service = new Service(accountDao, userDao);
     this.controller = new Controller(service);
     this.app.use(express.json());
     this.initializeRoutes();

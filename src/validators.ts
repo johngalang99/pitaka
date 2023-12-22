@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { z } from 'zod';
 import * as jwt from 'jsonwebtoken';
+import { RecordType } from './types';
 
 export const RegisterUserRequestSchema = z.object({
   name: z.string(),
@@ -16,6 +17,16 @@ export const CreateBankAccountRequestSchema = z.object({
 })
 
 export type CreateBankAccountRequest = z.infer<typeof CreateBankAccountRequestSchema>
+
+export const CreateRecordRequestSchema = z.object({
+  accountId: z.string(),
+  amount: z.number().min(0, 'Amount must be positive'),
+  type: z.nativeEnum(RecordType),
+  description: z.string(),
+  date: z.string().transform(value => new Date(value))
+})
+
+export type CreateRecordRequest = z.infer<typeof CreateRecordRequestSchema>
 
 export const validateSchema = <T>(schema: z.ZodSchema<T>) => async (req: Request, res: Response, next: NextFunction) => {
   try {
